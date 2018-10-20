@@ -1,15 +1,15 @@
 /*
- * Alumno:   Rodriguez Bocanegra, Juan Daniel 
+ * Alumno:   Rodriguez Bocanegra, Juan Daniel
  * Profesor: Aviña Mendez, Jose Antonio
  * Materia:  Seminario de Solucion de Problemas de Inteligencia Artificial I
- * Seccion:  D02 
+ * Seccion:  D02
  * Centro Universitario de Ciencias Exactas e Ingeniería
  * División de Electrónica y Computación
  */
 package myAgents.challenge1;
 
 import jade.core.Agent;
-import jade.core.behaviours.*;		
+import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.domain.DFService;
@@ -18,22 +18,22 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import java.sql.*;
 
-import java.util.*; 
+import java.util.*;
 
 public class BookSellerAgent extends Agent {
-	
+
 	public ConenctDB connDB;
 
 	// The catalogue of books for sale (maps the title of a book to its price)
 	private Hashtable catalogue;
-	
+
 	// The GUI by means of which the user can add books in the catalogue
 	private BookSellerGui myGui;
 
 	// Put agent initializations here
 	protected void setup() {
 		System.out.println("Hallo! BookSellerAgent: "+getAID().getName()+" is ready.");
-		
+
 		Object[] args = getArguments();
 		if (args != null && args.length > 0) {
 			String region = (String) args[0];
@@ -41,16 +41,16 @@ public class BookSellerAgent extends Agent {
 			//System.out.println("The region of this agent is: "+region);
 			// host, port, database, user, password
 			switch (region){
-				case "coast": 
+				case "coast":
 					database = "AmazonBooksCoastRegion";
 					break;
-				case "east": 
+				case "east":
 					database = "AmazonBooksEastRegion";
 					break;
 				case "west":
 					database = "AmazonBooksWestRegion";
 					break;
-				default: 
+				default:
 					database = "None";
 					break;
 			}
@@ -61,7 +61,7 @@ public class BookSellerAgent extends Agent {
 			// Create the catalogue
 			catalogue = new Hashtable();
 
-			// Create and show the GUI 
+			// Create and show the GUI
 			myGui = new BookSellerGui(this);
 			myGui.showGui();
 
@@ -89,7 +89,7 @@ public class BookSellerAgent extends Agent {
 		}	else {
 			// Make the agent terminate
 			System.out.println("No target region specified");
-			doDelete(); 
+			doDelete();
 		}
 	}
 
@@ -109,7 +109,7 @@ public class BookSellerAgent extends Agent {
 		// Printout a dismissal message
 		System.out.println("BookSellerAgent: "+getAID().getName()+" terminating.");
 	}
-	
+
 	private class OfferRequestsServer extends CyclicBehaviour {
 		public void action() {
 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
@@ -140,7 +140,7 @@ public class BookSellerAgent extends Agent {
 		}
 	}  // End of inner class OfferRequestsServer
 
-	
+
 	private class PurchaseOrdersServer extends CyclicBehaviour {
 		public void action() {
 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
@@ -151,7 +151,7 @@ public class BookSellerAgent extends Agent {
 				ACLMessage reply = msg.createReply();
 
 				int row = connDB.deleteByName(title);
-				
+
 				if (row > 0) {
 					reply.setPerformative(ACLMessage.INFORM);
 					System.out.println(title+" sold to agent "+msg.getSender().getName());
@@ -168,7 +168,7 @@ public class BookSellerAgent extends Agent {
 			}
 		}
 	}  // End of inner class OfferRequestsServer
-	
+
 	public class ConenctDB {
 		private String host;
 		private String port;
@@ -190,7 +190,7 @@ public class BookSellerAgent extends Agent {
 			try {
 	            url ="jdbc:mysql://" + host + ":" + port + "/" + database;
 	            // Database connect
-	            this.conn = DriverManager.getConnection(url,user,password);           
+	            this.conn = DriverManager.getConnection(url,user,password);
 	            boolean valid = conn.isValid(50000);
 	            System.out.println(valid ? "DATABASE "+ database +" TEST OK" : "TEST FAIL");
 	        } catch (java.sql.SQLException sqle) {
@@ -203,7 +203,7 @@ public class BookSellerAgent extends Agent {
 	    		if (conn != null) {
 	    			conn.close();
 	    			System.out.println("Connection close");
-	    		}	
+	    		}
 	    	} catch(java.sql.SQLException ex){
 	    		System.out.println("Error closing to the MySQL database:" + ex);
 	    	}
@@ -221,12 +221,12 @@ public class BookSellerAgent extends Agent {
 		    			while(resultado.next()){
 		    				return (float) resultado.getInt("precio");
 		    			}
-		    		} 
+		    		}
 
 		    	} catch (java.sql.SQLException ex){
 		    		System.out.println("Error al buscar por titulo: " + ex);
 		    	}
-	    	} 
+	    	}
 	    	return -1;
 	    }
 
@@ -235,23 +235,23 @@ public class BookSellerAgent extends Agent {
 		    	try{
 		    		PreparedStatement query = conn.prepareStatement("DELETE FROM Libros WHERE titulo = ?");
 		    		query.setString(1, targetBookTitle);
-		    		return query.executeUpdate(); 
+		    		return query.executeUpdate();
 
 		    	} catch (java.sql.SQLException ex){
 		    		System.out.println("Error al buscar por titulo: " + ex);
 		    	}
-	    	} 
+	    	}
 	    	return -1;
 	    }
 
 	    public void updateCatalogue(final String title, final float price) {
-	    	
+
 	    	addBehaviour(new OneShotBehaviour() {
 		 		public void action() {
-		 			
+
 		 			if (conn != null){
 				    	try{
-				    		
+
 				    		String sql = "INSERT INTO Libros (id,titulo,autor,puntos,precio) VALUES (?,?,?,?,?)";
 				    		PreparedStatement query = conn.prepareStatement(sql);
 				    		query.setString(1, null);
@@ -269,14 +269,14 @@ public class BookSellerAgent extends Agent {
 				    	} catch (java.sql.SQLException ex){
 				    		System.out.println("Error inserting book title: " + ex);
 				    	}
-			    	} 
-		 		} 
+			    	}
+		 		}
 		 	} );
 
-	    
+
 	    }
 
-		
+
 
 	}
 
