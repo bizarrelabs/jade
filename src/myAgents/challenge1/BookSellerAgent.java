@@ -18,14 +18,14 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import java.sql.*;
 
-import java.util.*;
+//import java.util.*;
 
 public class BookSellerAgent extends Agent {
 
 	public ConenctDB connDB;
 
 	// The catalogue of books for sale (maps the title of a book to its price)
-	private Hashtable catalogue;
+	// private Hashtable catalogue;
 
 	// The GUI by means of which the user can add books in the catalogue
 	private BookSellerGui myGui;
@@ -59,7 +59,7 @@ public class BookSellerAgent extends Agent {
 			//System.out.println("Precio de Troya: "+ connDB.shearchByName("Troya"));
 
 			// Create the catalogue
-			catalogue = new Hashtable();
+			//catalogue = new Hashtable();
 
 			// Create and show the GUI
 			myGui = new BookSellerGui(this);
