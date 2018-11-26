@@ -6,6 +6,7 @@
  * Centro Universitario de Ciencias Exactas e Ingeniería
  * División de Electrónica y Computación
  */
+
 package myAgents.handson3;
 
 import jade.core.Agent;
