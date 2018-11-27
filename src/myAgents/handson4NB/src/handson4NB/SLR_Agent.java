@@ -22,7 +22,23 @@ import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Shape;
 import java.io.*;
+import javax.swing.JPanel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.ApplicationFrame;
+import org.jfree.ui.RefineryUtilities;
+import org.jfree.util.ShapeUtilities;
 import org.rosuda.JRI.Rengine;
 
 public class SLR_Agent extends Agent {
@@ -159,6 +175,8 @@ public class SLR_Agent extends Agent {
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
             ACLMessage msg = myAgent.receive(mt);
+            boolean slr = false;
+
             if (msg != null) {
                 // ACCEPT_PROPOSAL Message received. Process it
 
@@ -174,8 +192,8 @@ public class SLR_Agent extends Agent {
                 y = y.substring(0, y.length() - 1);
                 x += ")";
                 y += ")";
-                System.out.println("x=" + x);
-                System.out.println("y=" + y);
+                //System.out.println("x=" + x);
+                //System.out.println("y=" + y);
 
                 Rengine engine = new Rengine(new String[]{"--no-save"}, false, null);
                 engine.eval("x=" + x);
@@ -190,9 +208,9 @@ public class SLR_Agent extends Agent {
                 double beta0 = engine.eval("beta0").asDouble();
                 double beta1 = engine.eval("beta1").asDouble();
 
-                System.out.println("Result: ŷ = " + beta0 + " + " + beta1 + "x");
+                System.out.printf("%nResult: ŷ = %.3f + %.3fx%n%n", beta0, beta1);
 
-                engine.eval("values <- data.frame(x = seq(50, 54))");
+                engine.eval("values <- data.frame(x = seq(51, 60))");
 
                 double[] result = engine.eval("predict(regression, values)").asDoubleArray();
 
@@ -213,57 +231,111 @@ public class SLR_Agent extends Agent {
                     csvOutput.write("ŷ");
                     csvOutput.write("x1");
                     csvOutput.endRecord();
-                    
-                    for (i = 0; i < array[0].length; i++){
+
+                    for (i = 0; i < array[0].length; i++) {
                         csvOutput.write(String.valueOf(array[0][i]));
                         csvOutput.write(String.valueOf(array[1][i]));
-                        
-                        if (i < result.length){
+
+                        if (i < result.length) {
                             csvOutput.write(String.valueOf(result[i]));
-                            csvOutput.write(String.valueOf(i+46));
+                            csvOutput.write(String.valueOf(i + 46));
                         }
                         csvOutput.endRecord();
-                    } 
-                    
+                    }
+
                     csvOutput.close();
+
+                    ScatterPlot plot = new ScatterPlot("Simple Linear Regression", array, beta0, beta1);
+                    plot.pack();
+                    RefineryUtilities.centerFrameOnScreen(plot);
+                    plot.setVisible(true);
+
+                    slr = true;
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-            
+                String title = msg.getContent();
+                ACLMessage reply = msg.createReply();
 
-            i = 0;
-
-            while (i < result.length) {
-                System.out.println("Result " + i + ": " + result[i]);
-                i++;
-            }
-
-            //Retrieve MEAN value
-            //double mean = engine.eval("meanVal").asDouble();
-            //Print output values
-            //System.out.println("Mean of given vector is=" + mean);
-            String title = msg.getContent();
-            ACLMessage reply = msg.createReply();
-
-            Integer price = 0;
-            if (price != null) {
-                reply.setPerformative(ACLMessage.INFORM);
-                System.out.println("Regression OK, file: '" + outputFile+"' created by " + msg.getSender().getName());
+                if (slr == true) {
+                    reply.setPerformative(ACLMessage.INFORM);
+                    System.out.println("Regression OK, file: '" + outputFile + "' created for " + msg.getSender().getName());
+                } else {
+                    // The requested book has been sold to another buyer in the meanwhile .
+                    reply.setPerformative(ACLMessage.FAILURE);
+                    reply.setContent("Regression not available");
+                }
+                myAgent.send(reply);
             } else {
-                // The requested book has been sold to another buyer in the meanwhile .
-                reply.setPerformative(ACLMessage.FAILURE);
-                reply.setContent("not-available");
+                block();
             }
-            myAgent.send(reply);
         }
 
-        
-            else {
-                block();
+    }  // End of inner class OfferRequestsServer
+
+    public class ScatterPlot extends ApplicationFrame {
+
+        private float data[][];
+        private double beta0, beta1;
+
+        public ScatterPlot(String s, float [][] array, double b0, double b1) {
+            super(s);
+            data = array;
+            beta0 = b0;
+            beta1 = b1;
+            JPanel jpanel = createDemoPanel();
+            jpanel.setPreferredSize(new Dimension(800, 600));
+            add(jpanel);
         }
+
+        public JPanel createDemoPanel() {
+            JFreeChart jfreechart = ChartFactory.createScatterPlot(
+                "Chemical process", // Title
+                "X",                // 
+                "Y",                
+                dataset(), // data
+                PlotOrientation.VERTICAL, 
+                true, 
+                true, 
+                false);
+            
+            Shape cross = ShapeUtilities.createDiagonalCross(3, 1);
+            XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
+            xyPlot.setDomainCrosshairVisible(true);
+            xyPlot.setRangeCrosshairVisible(true);
+            XYItemRenderer renderer = xyPlot.getRenderer();
+            renderer.setSeriesShape(0, cross);
+            renderer.setSeriesPaint(0, Color.red);
+            //renderer.setSeriesShape(1, cross);
+            renderer.setSeriesPaint(1, Color.blue);
+            return new ChartPanel(jfreechart);
+        }
+
+        private XYDataset dataset() {
+            
+            XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
+            XYSeries series = new XYSeries("Observations");
+            XYSeries rect = new XYSeries("Regression rect");
+            
+            float r = 40;
+            while(r < 80){
+                rect.add(r,(beta0+(r*beta1)));
+                r += 0.5;
+            }
+            
+            
+            System.out.println("Size():"+data[0].length);
+            for (int i = 0; i < data[0].length; i++){
+                series.add(data[0][i],data[1][i]);
+            }
+            
+            xySeriesCollection.addSeries(series);
+            xySeriesCollection.addSeries(rect);
+            return xySeriesCollection;
+        }
+
     }
 
-}  // End of inner class OfferRequestsServer
 }

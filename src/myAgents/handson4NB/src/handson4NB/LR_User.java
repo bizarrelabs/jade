@@ -38,7 +38,7 @@ public class LR_User extends Agent {
             regressionType = (String) args[0];
 
             // Add a TickerBehaviour that schedules a request to seller agents every minute
-            addBehaviour(new TickerBehaviour(this, 2000) {
+            addBehaviour(new TickerBehaviour(this, 1000) {
                 protected void onTick() {
                     System.out.println("Type of regression: " + regressionType);
                     // Update the list of seller agents
@@ -137,7 +137,7 @@ public class LR_User extends Agent {
                         // Purchase order reply received
                         if (reply.getPerformative() == ACLMessage.INFORM) {
                             // Purchase successful. We can terminate
-                            System.out.println(regressionType + "regression successfully made from agent " + reply.getSender().getName());
+                            System.out.println(regressionType + "-regression successfully done by the agent " + reply.getSender().getName());
                             myAgent.doDelete();
                         } else {
                             System.out.println("Attempt failed: requested book already sold.");
@@ -151,43 +151,6 @@ public class LR_User extends Agent {
             }
         }
 
-        /* public void dumpJSONElement(JsonElement elemento) {
-            if (elemento.isJsonObject()) {
-                System.out.println("Es objeto");
-                JsonObject obj = elemento.getAsJsonObject();
-                java.util.Set<java.util.Map.Entry<String, JsonElement>> entradas = obj.entrySet();
-                java.util.Iterator<java.util.Map.Entry<String, JsonElement>> iter = entradas.iterator();
-                while (iter.hasNext()) {
-                    java.util.Map.Entry<String, JsonElement> entrada = iter.next();
-                    System.out.println("Clave: " + entrada.getKey());
-                    System.out.println("Valor:");
-                    dumpJSONElement(entrada.getValue());
-                }
-
-            } else if (elemento.isJsonArray()) {
-                JsonArray array = elemento.getAsJsonArray();
-                System.out.println("Es array. Numero de elementos: " + array.size());
-                java.util.Iterator<JsonElement> iter = array.iterator();
-                while (iter.hasNext()) {
-                    JsonElement entrada = iter.next();
-                    dumpJSONElement(entrada);
-                }
-            } else if (elemento.isJsonPrimitive()) {
-                System.out.println("Es primitiva");
-                JsonPrimitive valor = elemento.getAsJsonPrimitive();
-                if (valor.isBoolean()) {
-                    System.out.println("Es booleano: " + valor.getAsBoolean());
-                } else if (valor.isNumber()) {
-                    System.out.println("Es numero: " + valor.getAsNumber());
-                } else if (valor.isString()) {
-                    System.out.println("Es texto: " + valor.getAsString());
-                }
-            } else if (elemento.isJsonNull()) {
-                System.out.println("Es NULL");
-            } else {
-                System.out.println("Es otra cosa");
-            }
-        }*/
         public boolean done() {
             if (step == 2 && bestAgent == null) {
                 System.out.println("Attempt failed: " + regressionType + " not available for sale");
