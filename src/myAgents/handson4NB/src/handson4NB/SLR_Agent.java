@@ -237,7 +237,10 @@ public class SLR_Agent extends Agent {
                         csvOutput.write(String.valueOf(array[1][i]));
 
                         if (i < result.length) {
-                            csvOutput.write(String.valueOf(result[i]));
+                            y = String.valueOf(result[i]);
+                            y = y.substring(0, 6);
+                            System.out.println("y:" + y);
+                            csvOutput.write(y);
                             csvOutput.write(String.valueOf(i + 46));
                         }
                         csvOutput.endRecord();
@@ -293,14 +296,14 @@ public class SLR_Agent extends Agent {
         public JPanel createDemoPanel() {
             JFreeChart jfreechart = ChartFactory.createScatterPlot(
                 "Chemical process", // Title
-                "X",                // 
-                "Y",                
+                "X",                //
+                "Y",
                 dataset(), // data
-                PlotOrientation.VERTICAL, 
-                true, 
-                true, 
+                PlotOrientation.VERTICAL,
+                true,
+                true,
                 false);
-            
+
             Shape cross = ShapeUtilities.createDiagonalCross(3, 1);
             XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
             xyPlot.setDomainCrosshairVisible(true);
@@ -314,23 +317,23 @@ public class SLR_Agent extends Agent {
         }
 
         private XYDataset dataset() {
-            
+
             XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
             XYSeries series = new XYSeries("Observations");
             XYSeries rect = new XYSeries("Regression rect");
-            
+
             float r = 40;
             while(r < 80){
                 rect.add(r,(beta0+(r*beta1)));
                 r += 0.5;
             }
-            
-            
+
+
             System.out.println("Size():"+data[0].length);
             for (int i = 0; i < data[0].length; i++){
                 series.add(data[0][i],data[1][i]);
             }
-            
+
             xySeriesCollection.addSeries(series);
             xySeriesCollection.addSeries(rect);
             return xySeriesCollection;

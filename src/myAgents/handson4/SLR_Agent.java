@@ -237,8 +237,10 @@ public class SLR_Agent extends Agent {
                         csvOutput.write(String.valueOf(array[1][i]));
 
                         if (i < result.length) {
-                            csvOutput.write(String.valueOf(result[i]));
-                            csvOutput.write(String.valueOf(i + 46));
+                          y = String.valueOf(result[i]);
+                          y = y.substring(0, 6);
+                          csvOutput.write(y);
+                          csvOutput.write(String.valueOf(i + 46));
                         }
                         csvOutput.endRecord();
                     }
