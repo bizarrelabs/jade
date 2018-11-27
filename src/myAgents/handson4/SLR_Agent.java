@@ -214,7 +214,7 @@ public class SLR_Agent extends Agent {
 
                 double[] result = engine.eval("predict(regression, values)").asDoubleArray();
 
-                String outputFile = "predictions.csv";
+                String outputFile = "slr-predictions.csv";
                 boolean alreadyExists = new File(outputFile).exists();
 
                 if (alreadyExists) {

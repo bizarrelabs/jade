@@ -6,7 +6,7 @@
  * Centro Universitario de Ciencias Exactas e Ingenierías
  * División de Electrónica y Computación
  */
-package handson4NB;
+package handson5NB;
 
 import com.csvreader.CsvWriter;
 import com.google.gson.JsonArray;
@@ -41,7 +41,7 @@ import org.jfree.ui.RefineryUtilities;
 import org.jfree.util.ShapeUtilities;
 import org.rosuda.JRI.Rengine;
 
-public class SLR_Agent extends Agent {
+public class MLR_Agent extends Agent {
 
     private static final JsonParser parser = new JsonParser();
     private static BufferedReader stdInput;
@@ -50,13 +50,13 @@ public class SLR_Agent extends Agent {
 
     // Put agent initializations here
     protected void setup() {
-        System.out.println("Hallo! SLR-Agent " + getAID().getName() + " is ready.");
+        System.out.println("Hallo! MLR-Agent " + getAID().getName() + " is ready.");
 
         // Register the book-selling service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         dfd.setName(getAID());
-        sd.setType("simple-linear-regression");
+        sd.setType("multiple-linear-regression");
         sd.setName("Machine-Learning");
         dfd.addServices(sd);
         try {
@@ -81,7 +81,7 @@ public class SLR_Agent extends Agent {
             fe.printStackTrace();
         }
         // Printout a dismissal message
-        System.out.println("SLR-Agent " + getAID().getName() + " terminating.");
+        System.out.println("MLR-Agent " + getAID().getName() + " terminating.");
     }
 
     private class OfferRequestsServer extends CyclicBehaviour {
@@ -175,7 +175,7 @@ public class SLR_Agent extends Agent {
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
             ACLMessage msg = myAgent.receive(mt);
-            boolean slr = false;
+            boolean mlr = false;
 
             if (msg != null) {
                 // ACCEPT_PROPOSAL Message received. Process it
@@ -239,7 +239,6 @@ public class SLR_Agent extends Agent {
                         if (i < result.length) {
                             y = String.valueOf(result[i]);
                             y = y.substring(0, 6);
-                            System.out.println("y:" + y);
                             csvOutput.write(y);
                             csvOutput.write(String.valueOf(i + 46));
                         }
@@ -253,7 +252,7 @@ public class SLR_Agent extends Agent {
                     RefineryUtilities.centerFrameOnScreen(plot);
                     plot.setVisible(true);
 
-                    slr = true;
+                    mlr = true;
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -262,7 +261,7 @@ public class SLR_Agent extends Agent {
                 String title = msg.getContent();
                 ACLMessage reply = msg.createReply();
 
-                if (slr == true) {
+                if (mlr == true) {
                     reply.setPerformative(ACLMessage.INFORM);
                     System.out.println("Regression OK, file: '" + outputFile + "' created for " + msg.getSender().getName());
                 } else {
@@ -283,7 +282,7 @@ public class SLR_Agent extends Agent {
         private float data[][];
         private double beta0, beta1;
 
-        public ScatterPlot(String s, float [][] array, double b0, double b1) {
+        public ScatterPlot(String s, float[][] array, double b0, double b1) {
             super(s);
             data = array;
             beta0 = b0;
@@ -295,14 +294,14 @@ public class SLR_Agent extends Agent {
 
         public JPanel createDemoPanel() {
             JFreeChart jfreechart = ChartFactory.createScatterPlot(
-                "Chemical process", // Title
-                "X",                //
-                "Y",
-                dataset(), // data
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false);
+                    "Chemical process", // Title
+                    "X", //
+                    "Y",
+                    dataset(), // data
+                    PlotOrientation.VERTICAL,
+                    true,
+                    true,
+                    false);
 
             Shape cross = ShapeUtilities.createDiagonalCross(3, 1);
             XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
@@ -323,15 +322,13 @@ public class SLR_Agent extends Agent {
             XYSeries rect = new XYSeries("Regression rect");
 
             float r = 40;
-            while(r < 80){
-                rect.add(r,(beta0+(r*beta1)));
+            while (r < 80) {
+                rect.add(r, (beta0 + (r * beta1)));
                 r += 0.5;
             }
 
-
-            System.out.println("Size():"+data[0].length);
-            for (int i = 0; i < data[0].length; i++){
-                series.add(data[0][i],data[1][i]);
+            for (int i = 0; i < data[0].length; i++) {
+                series.add(data[0][i], data[1][i]);
             }
 
             xySeriesCollection.addSeries(series);
