@@ -6,7 +6,7 @@
  * Centro Universitario de Ciencias Exactas e Ingenierías
  * División de Electrónica y Computación
  */
-package handson5NB;
+package handson7NB;
 
 import jade.core.Agent;
 import jade.core.AID;
@@ -29,7 +29,7 @@ public class LR_User extends Agent {
     @Override
     protected void setup() {
         // Printout a welcome message
-        System.out.println("Hallo! Linear-Regression-User " + getAID().getName() + " is ready.");
+        System.out.println("Hallo! Logistic-Regression-User " + getAID().getName() + " is ready.");
 
         // Get the title of the book to buy as a start-up argument
         Object[] args = getArguments();
@@ -44,11 +44,11 @@ public class LR_User extends Agent {
                     // Update the list of seller agents
                     DFAgentDescription template = new DFAgentDescription();
                     ServiceDescription sd = new ServiceDescription();
-                    sd.setType(regressionType + "-linear-regression");
+                    sd.setType(regressionType + "-regression");
                     template.addServices(sd);
                     try {
                         DFAgentDescription[] result = DFService.search(myAgent, template);
-                        System.out.println("Found the following " + regressionType + "-linear-regression-agents:");
+                        System.out.println("Found the following " + regressionType + "-regression-agents:");
                         linearRegresionAgents = new AID[result.length];
                         for (int i = 0; i < result.length; ++i) {
                             linearRegresionAgents[i] = result[i].getName();
@@ -64,7 +64,7 @@ public class LR_User extends Agent {
             });
         } else {
             // Make the agent terminate
-            System.out.println("No type of regression linear specified");
+            System.out.println("No type of regression specified");
             doDelete();
         }
     }
@@ -80,7 +80,7 @@ public class LR_User extends Agent {
         private AID bestAgent; // The agent who provides the best offer
         private MessageTemplate mt; // The template to receive replies
         private int step = 0;
-        private String fileJson = "curl https://handson5-ai.firebaseio.com/.json?print=pretty";
+        private String file = "curl https://handson5-ai.firebaseio.com/.json?print=pretty";
 
         public void action() {
             switch (step) {
@@ -91,7 +91,7 @@ public class LR_User extends Agent {
                     for (int i = 0; i < linearRegresionAgents.length; ++i) {
                         cfp.addReceiver(linearRegresionAgents[i]);
                     }
-                    cfp.setContent(fileJson);
+                    cfp.setContent(file);
                     cfp.setConversationId("multiple-linear-regression");
                     cfp.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value
                     myAgent.send(cfp);
@@ -121,7 +121,7 @@ public class LR_User extends Agent {
                     // Send the purchase order to the seller that provided the best offer
                     ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
                     order.addReceiver(bestAgent);
-                    order.setContent(fileJson);
+                    order.setContent(file);
                     order.setConversationId("multiple-linear-regression");
                     order.setReplyWith("order" + System.currentTimeMillis());
                     myAgent.send(order);

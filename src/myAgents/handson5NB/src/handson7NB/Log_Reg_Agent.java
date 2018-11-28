@@ -6,7 +6,7 @@
  * Centro Universitario de Ciencias Exactas e Ingenierías
  * División de Electrónica y Computación
  */
-package handson5NB;
+package handson7NB;
 
 import com.csvreader.CsvWriter;
 import com.google.gson.JsonArray;
@@ -26,7 +26,7 @@ import java.io.*;
 
 import org.rosuda.JRI.Rengine;
 
-public class MLR_Agent extends Agent {
+public class Log_Reg_Agent extends Agent {
 
     private static final JsonParser parser = new JsonParser();
     private static BufferedReader stdInput;
@@ -35,7 +35,7 @@ public class MLR_Agent extends Agent {
 
     // Put agent initializations here
     protected void setup() {
-        System.out.println("Hallo! MLR-Agent " + getAID().getName() + " is ready.");
+        System.out.println("Hallo! Logistic-Regression-Agent " + getAID().getName() + " is ready.");
 
         // Register the book-selling service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
