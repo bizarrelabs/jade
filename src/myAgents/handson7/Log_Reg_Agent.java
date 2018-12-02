@@ -6,7 +6,7 @@
  * Centro Universitario de Ciencias Exactas e Ingenierías
  * División de Electrónica y Computación
  */
-package handson7NB;
+package myAgents.handson7;
 
 import com.csvreader.CsvReader;
 import jade.core.Agent;
@@ -18,10 +18,6 @@ import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.rosuda.JRI.Rengine;
 
@@ -130,16 +126,16 @@ public class Log_Reg_Agent extends Agent {
                     CsvReader importFile = new CsvReader("predict.csv");
                     importFile.readHeaders();
                     int i = 0;
-                    System.out.println("Predictions: ");
+                    System.out.println("\n\tPredictions: ");
                     while (importFile.readRecord()) {
                         String e1 = importFile.get("e1");
                         String e2 = importFile.get("e2");
                         String admitted = Double.toString(predictions[i]*100);
                         admitted = admitted.substring(0, 5);
-                        System.out.println("E1: " + e1 + ", E2: " + e2 + ", Admitted?: " + admitted);
+                        System.out.println("\tE1: " + e1 + ", E2: " + e2 + ", Admitted?: " + admitted);
                         i++;
                     }
-
+                    System.out.println("");
                     importFile.close();
 
                 } catch (IOException e) {

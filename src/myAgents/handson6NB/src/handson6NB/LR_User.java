@@ -6,7 +6,7 @@
  * Centro Universitario de Ciencias Exactas e Ingenierías
  * División de Electrónica y Computación
  */
-package handson7NB;
+package handson6NB;
 
 import jade.core.Agent;
 import jade.core.AID;
@@ -29,7 +29,7 @@ public class LR_User extends Agent {
     @Override
     protected void setup() {
         // Printout a welcome message
-        System.out.println("Hallo! Logistic-Regression-User " + getAID().getName() + " is ready.");
+        System.out.println("Hallo! Regression-User " + getAID().getName() + " is ready.");
 
         // Get the title of the book to buy as a start-up argument
         Object[] args = getArguments();
@@ -64,7 +64,7 @@ public class LR_User extends Agent {
             });
         } else {
             // Make the agent terminate
-            System.out.println("No type of regression specified");
+            System.out.println("No type of regression linear specified");
             doDelete();
         }
     }
@@ -72,7 +72,7 @@ public class LR_User extends Agent {
     // Put agent clean-up operations here
     protected void takeDown() {
         // Printout a dismissal message
-        System.out.println("SLR-User " + getAID().getName() + " terminating.");
+        System.out.println("R-User " + getAID().getName() + " terminating.");
     }
 
     private class RequestPerformer extends Behaviour {
@@ -80,7 +80,7 @@ public class LR_User extends Agent {
         private AID bestAgent; // The agent who provides the best offer
         private MessageTemplate mt; // The template to receive replies
         private int step = 0;
-        private String file = "Marks.csv";
+        private String fileJson = "curl https://handson6-ai.firebaseio.com/.json?print=pretty";
 
         public void action() {
             switch (step) {
@@ -91,12 +91,12 @@ public class LR_User extends Agent {
                     for (int i = 0; i < linearRegresionAgents.length; ++i) {
                         cfp.addReceiver(linearRegresionAgents[i]);
                     }
-                    cfp.setContent(file);
-                    cfp.setConversationId("logistic-regression");
+                    cfp.setContent(fileJson);
+                    cfp.setConversationId("quadratic-regression");
                     cfp.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value
                     myAgent.send(cfp);
                     // Prepare the template to get proposals
-                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("logistic-regression"),
+                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("quadratic-regression"),
                             MessageTemplate.MatchInReplyTo(cfp.getReplyWith()));
                     step = 1;
                     break;
@@ -121,12 +121,12 @@ public class LR_User extends Agent {
                     // Send the purchase order to the seller that provided the best offer
                     ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
                     order.addReceiver(bestAgent);
-                    order.setContent(file);
-                    order.setConversationId("logistic-regression");
+                    order.setContent(fileJson);
+                    order.setConversationId("quadratic-regression");
                     order.setReplyWith("order" + System.currentTimeMillis());
                     myAgent.send(order);
                     // Prepare the template to get the purchase order reply
-                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("logistic-regression"),
+                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("quadratic-regression"),
                             MessageTemplate.MatchInReplyTo(order.getReplyWith()));
                     step = 3;
                     break;
@@ -153,7 +153,7 @@ public class LR_User extends Agent {
 
         public boolean done() {
             if (step == 2 && bestAgent == null) {
-                System.out.println("Attempt failed: " + regressionType + " not available for sale");
+                System.out.println("Attempt failed: " + regressionType + " not available");
             }
             return ((step == 2 && bestAgent == null) || step == 4);
         }

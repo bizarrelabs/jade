@@ -6,7 +6,7 @@
  * Centro Universitario de Ciencias Exactas e Ingenierías
  * División de Electrónica y Computación
  */
-package myAgents.handson5;
+package handson6NB;
 
 import com.csvreader.CsvWriter;
 import com.google.gson.JsonArray;
@@ -22,26 +22,41 @@ import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Shape;
 import java.io.*;
-
+import javax.swing.JPanel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.ApplicationFrame;
+import org.jfree.ui.RefineryUtilities;
+import org.jfree.util.ShapeUtilities;
 import org.rosuda.JRI.Rengine;
 
-public class MLR_Agent extends Agent {
+public class QR_Agent extends Agent {
 
     private static final JsonParser parser = new JsonParser();
     private static BufferedReader stdInput;
     private static JsonElement datos;
-    public float[][] array = new float[3][17];
+    public float[][] array = new float[2][9];
 
     // Put agent initializations here
     protected void setup() {
-        System.out.println("Hallo! MLR-Agent " + getAID().getName() + " is ready.");
+        System.out.println("Hallo! QR-Agent " + getAID().getName() + " is ready.");
 
         // Register the book-selling service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         dfd.setName(getAID());
-        sd.setType("multiple-linear-regression");
+        sd.setType("quadratic-regression");
         sd.setName("Machine-Learning");
         dfd.addServices(sd);
         try {
@@ -66,7 +81,7 @@ public class MLR_Agent extends Agent {
             fe.printStackTrace();
         }
         // Printout a dismissal message
-        System.out.println("MLR-Agent " + getAID().getName() + " terminating.");
+        System.out.println("QR-Agent " + getAID().getName() + " terminating.");
     }
 
     private class OfferRequestsServer extends CyclicBehaviour {
@@ -142,74 +157,69 @@ public class MLR_Agent extends Agent {
                     //System.out.println("i:" + i + "j:" + j);
                     array[i][j] = Float.parseFloat(valor.getAsString());
                     //System.out.println(array[i][j]);
-                    //i++;
+                    i++;
                 }
             } else if (elemento.isJsonNull()) {
-                System.out.println("Es NULL");
+                //System.out.println("Es NULL");
             } else {
-                System.out.println("Es otra cosa");
+                //System.out.println("Es otra cosa");
             }
         }
     }  // End of inner class OfferRequestsServer
 
     private class PurchaseOrdersServer extends CyclicBehaviour {
 
-        private String x1, x2;
+        private String x;
         private String y;
-        private int i;
 
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
             ACLMessage msg = myAgent.receive(mt);
-            boolean mlr = false;
+            boolean slr = false;
 
             if (msg != null) {
                 // ACCEPT_PROPOSAL Message received. Process it
 
-                x1 = x2 = y = "c(";
+                x = y = "c(";
 
+                int i = 0;
                 while (i < array[0].length) {
-                    x1 += Float.toString(array[0][i]) + ",";
-                    x2 += Float.toString(array[1][i]) + ",";
-                    y += Float.toString(array[2][i]) + ",";
+                    x += Float.toString(array[0][i]) + ",";
+                    y += Float.toString(array[1][i]) + ",";
                     i++;
                 }
-                x1 = x1.substring(0, x1.length() - 1);
-                x2 = x2.substring(0, x2.length() - 1);
+                x = x.substring(0, x.length() - 1);
                 y = y.substring(0, y.length() - 1);
-                x1 += ")";
-                x2 += ")";
+                x += ")";
                 y += ")";
-
-                //System.out.println("x1=" + x1);
-                //System.out.println("x2=" + x2);
-                //System.out.println("y=" + y);
+                System.out.println("x=" + x);
+                System.out.println("y=" + y);
 
                 Rengine engine = new Rengine(new String[]{"--no-save"}, false, null);
-                engine.eval("x1=" + x1);
-                engine.eval("x2=" + x2);
+                engine.eval("x=" + x);
                 engine.eval("y=" + y);
-
                 // Comando lm (linear models)
-                engine.eval("regression <- lm(y ~ x1 + x2)");
+                engine.eval("regression <- lm(y ~ x)");
                 //String result = engine.eval("summary(regression)").asString();
-                //System.out.println("Result:" + result);
                 engine.eval("betas = coef(regression)");
                 engine.eval("beta0 = betas[1:1]");
                 engine.eval("beta1 = betas[2:2]");
                 engine.eval("beta2 = betas[3:3]");
+                
+                System.out.println("beta0:" + engine.eval("beta0"));
+                System.out.println("beta1:" + engine.eval("beta1"));
+                System.out.println("beta2:" + engine.eval("beta2"));
 
                 double beta0 = engine.eval("beta0").asDouble();
                 double beta1 = engine.eval("beta1").asDouble();
-                double beta2 = engine.eval("beta2").asDouble();
 
-                System.out.printf("%nResult: ŷ = %.3f + %.3fx1 + %.3fx2 %n%n", beta0, beta1, beta2);
+                System.out.printf("%nResult: ŷ = %.3f + x + %.3f^x2%n%n", beta0, beta1);
 
-                engine.eval("values <- data.frame(x1 = seq(51, 60), x2 = seq(29.6, 30.5, 0.1))");
+                engine.eval("values <- data.frame(x = seq(4, 5.8, 0.2))");
 
-                double[] result = engine.eval("predict(regression, values)").asDoubleArray();
+                double[] result = engine.eval("predict(regression, values").asDoubleArray();
 
-                String outputFile = "mlr-predictions.csv";
+                String outputFile = "qr-predictions.csv";
                 boolean alreadyExists = new File(outputFile).exists();
 
                 if (alreadyExists) {
@@ -222,45 +232,32 @@ public class MLR_Agent extends Agent {
                     CsvWriter csvOutput = new CsvWriter(new FileWriter(outputFile, true), ',');
 
                     csvOutput.write("y");
-                    csvOutput.write("x1");
-                    csvOutput.write("x2");
+                    csvOutput.write("x");
                     csvOutput.write("ŷ");
-                    csvOutput.write("x_{1}");
-                    csvOutput.write("x_{2}");
+                    csvOutput.write("x1");
                     csvOutput.endRecord();
 
-                    final float j = (float) 0.1;
-
                     for (i = 0; i < array[0].length; i++) {
-                        csvOutput.write(String.valueOf(array[2][i]));
-                        csvOutput.write(String.valueOf(array[0][i]));
                         csvOutput.write(String.valueOf(array[1][i]));
+                        csvOutput.write(String.valueOf(array[0][i]));
 
                         if (i < result.length) {
                             y = String.valueOf(result[i]);
-                            y = y.substring(0, 6);
+                            //y = y.substring(0, 6);
                             csvOutput.write(y);
-                            csvOutput.write(String.valueOf(i + 46));
-                            String v = String.valueOf(i * j + 29.6);
-                            csvOutput.write(v.substring(0, 4));
+                            csvOutput.write(String.valueOf(4 + i * 0.2));
                         }
                         csvOutput.endRecord();
                     }
 
                     csvOutput.close();
 
-                    engine.eval("data<-read.csv(file='" + outputFile + "',head=TRUE,sep=',')");
+                    ScatterPlot plot = new ScatterPlot("Quadratic Regression", array, result, beta0, beta1);
+                    plot.pack();
+                    RefineryUtilities.centerFrameOnScreen(plot);
+                    plot.setVisible(true);
 
-                    engine.eval("library('scatterplot3d')");
-                    engine.eval("s3d <- scatterplot3d(x1,x2,y,type = 'h', color = 'blue', angle=55, pch = 16,"
-                            + "main='Multiple Linear Regression',"
-                            + "xlab = 'X1',"
-                            + "ylab = 'X2',"
-                            + "zlab = 'Y')");
-                    engine.eval("s3d$plane3d(regression)");
-                    //engine.eval("s3d$points3d(seq(10, 20, 2), seq(85, 60, -5), seq(60, 10, -10), col = 'red', type = 'h', pch = 8)");
-
-                    mlr = true;
+                    slr = true;
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -269,7 +266,7 @@ public class MLR_Agent extends Agent {
                 String title = msg.getContent();
                 ACLMessage reply = msg.createReply();
 
-                if (mlr == true) {
+                if (slr == true) {
                     reply.setPerformative(ACLMessage.INFORM);
                     System.out.println("Regression OK, file: '" + outputFile + "' created for " + msg.getSender().getName());
                 } else {
@@ -284,5 +281,78 @@ public class MLR_Agent extends Agent {
         }
 
     }  // End of inner class OfferRequestsServer
+
+    public class ScatterPlot extends ApplicationFrame {
+
+        private final float data[][];
+        private final double predictions[];
+        private final double beta0;
+        private final double beta1;
+
+        public ScatterPlot(String s, float[][] array, double [] p, double b0, double b1) {
+            super(s);
+            data = array;
+            this.predictions = p;
+            beta0 = b0;
+            beta1 = b1;
+            JPanel jpanel = createDemoPanel();
+            jpanel.setPreferredSize(new Dimension(800, 600));
+            add(jpanel);
+        }
+
+        public JPanel createDemoPanel() {
+            JFreeChart jfreechart = ChartFactory.createScatterPlot(
+                    "Set de Datos", // Title
+                    "X", //
+                    "Y",
+                    dataset(), // data
+                    PlotOrientation.VERTICAL,
+                    true,
+                    true,
+                    false);
+
+            Shape cross = ShapeUtilities.createDiagonalCross(3, 1);
+            XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
+            xyPlot.setDomainCrosshairVisible(true);
+            xyPlot.setRangeCrosshairVisible(true);
+            XYItemRenderer renderer = xyPlot.getRenderer();
+            renderer.setSeriesShape(0, cross);
+            renderer.setSeriesPaint(0, Color.red);
+            //renderer.setSeriesShape(1, cross);
+            renderer.setSeriesPaint(1, Color.blue);
+            return new ChartPanel(jfreechart);
+        }
+
+        private XYDataset dataset() {
+
+            XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
+            XYSeries series = new XYSeries("Observations");
+            XYSeries rect = new XYSeries("Regression rect");
+
+            /*float r = (float) -5.8;
+            while (r < 6) {
+
+                rect.add(r, beta0 + r + (beta1 * r * r));
+                r += 0.5;
+            }*/
+            float r = (float) 4;
+            int ii = 0;
+            while (r < 5.8) {
+
+                rect.add(r, predictions[ii]);
+                r += 0.2;
+                ii+=1;
+            }
+
+            for (int i = 0; i < data[0].length; i++) {
+                series.add(data[0][i], data[1][i]);
+            }
+
+            xySeriesCollection.addSeries(series);
+            xySeriesCollection.addSeries(rect);
+            return xySeriesCollection;
+        }
+
+    }
 
 }

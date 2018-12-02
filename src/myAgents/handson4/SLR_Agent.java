@@ -218,8 +218,8 @@ public class SLR_Agent extends Agent {
                 boolean alreadyExists = new File(outputFile).exists();
 
                 if (alreadyExists) {
-                    File ArchivoEmpleados = new File(outputFile);
-                    ArchivoEmpleados.delete();
+                    File archivo = new File(outputFile);
+                    archivo.delete();
                 }
 
                 try {
