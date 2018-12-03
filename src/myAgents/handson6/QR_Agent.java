@@ -6,7 +6,7 @@
  * Centro Universitario de Ciencias Exactas e Ingenierías
  * División de Electrónica y Computación
  */
-package handson6NB;
+package myAgents.handson6;
 
 import com.csvreader.CsvWriter;
 import com.google.gson.JsonArray;
@@ -219,7 +219,7 @@ public class QR_Agent extends Agent {
 
                 engine.eval("values <- data.frame(x = seq(-1.8, 2, 0.4), x2 = seq(-1.8, 2, 0.4)^2)");
 
-                System.out.println(engine.eval("predict(regression, values)"));
+                //System.out.println(engine.eval("predict(regression, values)"));
                 double[] result = engine.eval("predict(regression, values)").asDoubleArray();
 
                 String outputFile = "qr-predictions.csv";
@@ -249,7 +249,7 @@ public class QR_Agent extends Agent {
                             csvOutput.write("");
                             csvOutput.write("");
                         }
-                        
+
 
                         if (i <= result.length) {
                             y = String.valueOf(result[i]);
