@@ -106,8 +106,8 @@ public class Log_Reg_Agent extends Agent {
 
                 engine.eval("data<-read.csv(file='" + file + "',head=TRUE,sep=',')");
                 engine.eval("predict<-read.csv(file='predict.csv',head=TRUE,sep=',')");
-                engine.eval("e1<-predict$e1");
-                engine.eval("e2<-predict$e2");
+                engine.eval("e1<-predict$e1"); // variable independiente para predecir
+                engine.eval("e2<-predict$e2"); // variable independiente para predecir
 
                 engine.eval("exam_1<-data$exam_1");
                 engine.eval("exam_2<-data$exam_2");

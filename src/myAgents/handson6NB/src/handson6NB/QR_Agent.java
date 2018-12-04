@@ -335,6 +335,7 @@ public class QR_Agent extends Agent {
             //renderer.setSeriesShape(1, cross);
             renderer.setSeriesPaint(1, Color.blue);
             return new ChartPanel(jfreechart);
+            
         }
 
         private XYDataset dataset() {

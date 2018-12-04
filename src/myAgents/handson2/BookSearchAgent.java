@@ -1,8 +1,8 @@
 /*
- * Alumno:   Rodriguez Bocanegra, Juan Daniel 
+ * Alumno:   Rodriguez Bocanegra, Juan Daniel
  * Profesor: Aviña Mendez, Jose Antonio
  * Materia:  Seminario de Solucion de Problemas de Inteligencia Artificial I
- * Seccion:  D02 
+ * Seccion:  D02
  * Centro Universitario de Ciencias Exactas e Ingeniería
  * División de Electrónica y Computación
  */
@@ -27,12 +27,12 @@ public class BookSearchAgent extends Agent {
 	// Put agent initializations here
 	public static AID bestSeller;
 	public static ACLMessage replyUser;
-	
+
 	protected void setup() {
 		// Printout a welcome message
 		System.out.println("Hallo! BookSearchAgent: "+getAID().getName()+" is ready.");
 
-		
+
 		// Register the book-selling service in the yellow pages
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
@@ -65,7 +65,7 @@ public class BookSearchAgent extends Agent {
 					sd.setType("amazon-sqldatabase-brokering");
 					template.addServices(sd);
 					try {
-						DFAgentDescription[] result = DFService.search(myAgent, template); 
+						DFAgentDescription[] result = DFService.search(myAgent, template);
 						System.out.println("Found the following seller agents:");
 						sellerAgents = new AID[result.length];
 						for (int i = 0; i < result.length; ++i) {
@@ -85,7 +85,7 @@ public class BookSearchAgent extends Agent {
 					block();
 				}
 			}
-		} 
+		}
 		);
 
 	}
@@ -102,9 +102,9 @@ public class BookSearchAgent extends Agent {
 		// Printout a dismissal message
 		System.out.println("BookSearchAgent "+getAID().getName()+" terminating.");
 	}
-	
+
 	private class RequestPerformer extends Behaviour {
-		//private AID bestSeller; // The agent who provides the best offer 
+		//private AID bestSeller; // The agent who provides the best offer
 		private float bestPrice;  // The best offered price
 		private int repliesCnt = 0; // The counter of replies from seller agents
 		private MessageTemplate mt; // The template to receive replies
@@ -117,7 +117,7 @@ public class BookSearchAgent extends Agent {
 				ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
 				for (int i = 0; i < sellerAgents.length; ++i) {
 					cfp.addReceiver(sellerAgents[i]);
-				} 
+				}
 				cfp.setContent(title);
 				cfp.setConversationId("amazon-sqldatabase-brokering");
 				cfp.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
@@ -133,7 +133,7 @@ public class BookSearchAgent extends Agent {
 				if (reply != null) {
 					// Reply received
 					if (reply.getPerformative() == ACLMessage.PROPOSE) {
-						// This is an offer 
+						// This is an offer
 						float price = Float.parseFloat(reply.getContent());
 						if (bestSeller == null || price < bestPrice) {
 							// This is the best offer at present
@@ -144,7 +144,7 @@ public class BookSearchAgent extends Agent {
 					repliesCnt++;
 					if (repliesCnt >= sellerAgents.length) {
 						// We received all replies
-						step = 2; 
+						step = 2;
 					}
 				}
 				else {
@@ -164,7 +164,7 @@ public class BookSearchAgent extends Agent {
 						MessageTemplate.MatchInReplyTo(order.getReplyWith()));
 				step = 3;
 				break;
-			case 3:      
+			case 3:
 				// Receive the purchase order reply
 				reply = myAgent.receive(mt);
 				if (reply != null) {
@@ -173,7 +173,7 @@ public class BookSearchAgent extends Agent {
 						// Purchase successful. We can terminate
 						System.out.println(title+" successfully purchased from agent "+reply.getSender().getName());
 						System.out.println("Price = "+bestPrice);
-						
+
 						myAgent.doDelete();
 					}
 					else {
@@ -186,22 +186,22 @@ public class BookSearchAgent extends Agent {
 					block();
 				}
 				break;
-			}        
+			}
 		}
 
 		public boolean done() {
-			
+
 			if (step == 2 && bestSeller == null) {
 				System.out.println("Attempt failed: "+title+" not available for sale");
-			} 
+			}
 
 			if (((step == 2 && bestSeller == null) || step == 4)){
 				replyUser.setPerformative(ACLMessage.INFORM);
 				if (bestSeller != null){
-					replyUser.setContent(bestSeller.getName());	
+					replyUser.setContent(bestSeller.getName());
 				} else {
-					replyUser.setContent("");	
-				} 
+					replyUser.setContent("");
+				}
 				myAgent.send(replyUser);
 			}
 			return false;

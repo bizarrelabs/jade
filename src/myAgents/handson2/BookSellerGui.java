@@ -1,8 +1,8 @@
 /*
- * Alumno:   Rodriguez Bocanegra, Juan Daniel 
+ * Alumno:   Rodriguez Bocanegra, Juan Daniel
  * Profesor: Aviña Mendez, Jose Antonio
  * Materia:  Seminario de Solucion de Problemas de Inteligencia Artificial I
- * Seccion:  D02 
+ * Seccion:  D02
  * Centro Universitario de Ciencias Exactas e Ingeniería
  * División de Electrónica y Computación
  */
@@ -18,14 +18,14 @@ import javax.swing.*;
 /**
   @author Giovanni Caire - TILAB
  */
-class BookSellerGui extends JFrame {	
+class BookSellerGui extends JFrame {
 	private AmazonBrokerAgent myAgent;
-	
+
 	private JTextField titleField, priceField;
-	
+
 	BookSellerGui(AmazonBrokerAgent a) {
 		super(a.getLocalName());
-		
+
 		myAgent = a;
 
 		JPanel p = new JPanel();
@@ -37,7 +37,7 @@ class BookSellerGui extends JFrame {
 		priceField = new JTextField(15);
 		p.add(priceField);
 		getContentPane().add(p, BorderLayout.CENTER);
-		
+
 		JButton addButton = new JButton("Add");
 		addButton.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
@@ -49,25 +49,25 @@ class BookSellerGui extends JFrame {
 					priceField.setText("");
 				}
 				catch (Exception e) {
-					JOptionPane.showMessageDialog(BookSellerGui.this, "Invalid values. "+e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
+					JOptionPane.showMessageDialog(BookSellerGui.this, "Invalid values. "+e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		} );
 		p = new JPanel();
 		p.add(addButton);
 		getContentPane().add(p, BorderLayout.SOUTH);
-		
-		// Make the agent terminate when the user closes 
-		// the GUI using the button on the upper right corner	
+
+		// Make the agent terminate when the user closes
+		// the GUI using the button on the upper right corner
 		addWindowListener(new	WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				myAgent.doDelete();
 			}
 		} );
-		
+
 		setResizable(false);
 	}
-	
+
 	public void showGui() {
 		pack();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -75,5 +75,5 @@ class BookSellerGui extends JFrame {
 		int centerY = (int)screenSize.getHeight() / 2;
 		setLocation(centerX - getWidth() / 2, centerY - getHeight() / 2);
 		super.setVisible(true);
-	}	
+	}
 }
