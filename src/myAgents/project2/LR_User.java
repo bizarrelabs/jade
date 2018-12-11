@@ -27,7 +27,7 @@ public class LR_User extends Agent {
 
     private UserGui myGui;
 
-    private String x1, x2;
+    private String x1, x2; 
 
     // Put agent initializations here
     @Override
